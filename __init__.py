@@ -1,1 +1,1 @@
-from OSerial import Serial
+from .OSerial import Serial

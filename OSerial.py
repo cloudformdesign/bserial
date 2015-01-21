@@ -1,23 +1,34 @@
 import time
 from collections import deque
 from threading import Thread
-import serial
+try:
+    import serial
+except ImportError:
+    print("Could not import Serial -- debug mode only")
+
 
 class Serial(object):
-    def __init__(self, port='/dev/ttyAMA0', baud=38400, timeout = 0.05, eol=b'\r'):
+    def __init__(self, port='/dev/ttyAMA0', baud=38400, timeout=0.05,
+                 eol=b'\r'):
         self._kill = False
-        self.eol=eol
-        self._com = serial.Serial(port, baud)
+        self.eol = eol
+
         self._unparsed = b''
         self.raw = deque()
 
-        self._com.timeout = 0.15
-        self._com.readall()  # flush buffer
-        self._com.timeout = timeout
+        if port is None:
+            self._com = None
+        else:
+            # Setup the com port
+            self._com = serial.Serial(port, baud)
+            self._com.timeout = 0.15
+            self._com.readall()  # flush buffer
+            self._com.timeout = timeout
 
-        self._thread = Thread(target = self._read_thread)
-        self._thread.daemon = True
-        self._thread.start()
+            # Start the reading thread
+            self._thread = Thread(target=self._read_thread)
+            self._thread.daemon = True
+            self._thread.start()
 
     def _write(self, command):
         command = encode(command)
