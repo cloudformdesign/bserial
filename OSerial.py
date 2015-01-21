@@ -16,7 +16,7 @@ class Serial(object):
         self._unparsed = b''
         self.raw = deque()
 
-        if port is None:
+        if not port:
             self._com = None
         else:
             # Setup the com port
